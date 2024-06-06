@@ -18,85 +18,107 @@ app.get('/', (req, res) => {
 })
 
 //Obtener todas las peliculas
-app.get('/peliculas', async (req, res) => {
+app.get('/peliculas', (req, res) => {
   const { genero } = req.query
   const query = !genero ? {} : { genre: { $regex: genero, $options: 'i' } }
-  try {
-    const peliculas = await Movie.find(query)
-    res.json(peliculas)
-  } catch (error) {
-    res.status(500).send('Error al obtener las peliculas')
-  }
+  Movie.find(query)
+    .then((peliculas) => {
+      res.json(peliculas)
+    })
+    .catch((error) => {
+      console.error('Error al obtener peliculas: ', error)
+      res.status(500).send('Error al obtener las peliculas')
+    })
 })
 
 //Mostrar una peli por id
-app.get('/peliculas/:id', async (req, res) => {
+app.get('/peliculas/:id', (req, res) => {
   const { id } = req.params
-  const pelicula = await Movie.findById(id)
-  if (pelicula) return res.json(pelicula)
-  res.status(404).json({ message: 'Peli no encontrada' })
+  Movie.findById(id)
+    .then((pelicula) => {
+      if (pelicula) {
+        res.json(pelicula)
+      } else {
+        res.status(404).json({ message: 'Peli no encontrada' })
+      }
+    })
+    .catch((error) => {
+      console.error('Error al obtener la pelicula: ', error)
+      res.status(500).send('Error al obtener la pelicula')
+    })
 })
 
 //Agregar una peli
-app.post('/peliculas', async (req, res) => {
+app.post('/peliculas', (req, res) => {
   const nuevaPeli = new Movie(req.body)
-  try {
-    await nuevaPeli.save()
-    res.status(201).json(nuevaPeli)
-  } catch {
-    return res.status(500).json({ message: 'Error al agregar la peli' })
-  }
+  nuevaPeli
+    .save()
+    .then((peliculaGuardada) => {
+      res.status(201).json(peliculaGuardada)
+    })
+    .catch((error) => {
+      console.error('Error al agregar la pelicula: ', error)
+      res.status(500).send('Error al agregar la pelicula')
+    })
 })
 
 //Borrar una peli por id
-app.delete('/peliculas/:id', async (req, res) => {
+app.delete('/peliculas/:id', (req, res) => {
   const { id } = req.params
 
-  try {
-    const resultado = await Movie.findByIdAndDelete(id)
-    if (resultado) {
-      res.json({ message: 'Peli borrada con exito' })
-    } else {
-      res.status(404).json({ message: 'Peli no encontrada para borrar' })
-    }
-  } catch (error) {
-    return res.status(500).json({ message: 'Error al borrar la peli' })
-  }
+  Movie.findByIdAndDelete(id)
+    .then((resultado) => {
+      if (resultado) {
+        res.json({ message: 'Peli borrada con exito' })
+      } else {
+        res.status(404).json({ message: 'Peli no encontrada para borrar' })
+      }
+    })
+    .catch((error) => {
+      console.error('Error al borrar la pelicula: ', error)
+      res.status(500).send('Error al borrar la pelicula')
+    })
 })
 
 //Modificar/Actualizar una peli parcialmente
-app.patch('/peliculas/:id', async (req, res) => {
+app.patch('/peliculas/:id', (req, res) => {
   const { id } = req.params
 
-  try {
-    const peliActualizada = await Movie.findByIdAndUpdate(id, req.body, {
-      new: true,
+  Movie.findByIdAndUpdate(id, req.body, {
+    new: true,
+  })
+    .then((peliActualizada) => {
+      if (peliActualizada) {
+        res.json({ message: 'Peli actualizada con exito', peliActualizada })
+      } else {
+        res.status(404).json({ message: 'Peli no encontrada para borrar' })
+      }
     })
-    if (!peliActualizada) {
-      return res.status(404).json({ message: 'Peli no encontrada para borrar' })
-    }
-    res.json({ message: 'Peli actualizada con exito', peliActualizada })
-  } catch (error) {
-    return res.status(500).json({ message: 'Error al actualizar la peli' })
-  }
+    .catch((error) => {
+      console.error('Error al modificar la pelicula: ', error)
+      res.status(500).send('Error al modificar la pelicula')
+    })
 })
 
 //Modificar/Actualizar una peli completamente
-app.put('/peliculas/:id', async (req, res) => {
+app.put('/peliculas/:id', (req, res) => {
   const { id } = req.params
 
-  try {
-    const peliActualizada = await Movie.findByIdAndUpdate(id, req.body, {
-      new: true,
-      overwrite: true,
+  Movie.findByIdAndUpdate(id, req.body, {
+    new: true,
+    overwrite: true,
+  })
+    .then((peliActualizada) => {
+      if (peliActualizada) {
+        res.json({ message: 'Peli actualizada con exito', peliActualizada })
+      } else {
+        res.status(404).json({ message: 'Peli no encontrada para borrar' })
+      }
     })
-    if (!peliActualizada) {
-      return res.status(404).json({ message: 'Peli no encontrada para borrar' })
-    }
-    res.json({ message: 'Peli actualizada con exito', peliActualizada })
-  } catch (error) {
-    return res.status(500).json({ message: 'Error al actualizar la peli' })
-  }
+    .catch((error) => {
+      console.error('Error al modificar la pelicula: ', error)
+      res.status(500).send('Error al modificar la pelicula')
+    })
 })
 
 //Inicializamos el servidor
