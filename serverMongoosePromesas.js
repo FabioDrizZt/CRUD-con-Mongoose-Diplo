@@ -1,31 +1,12 @@
 const express = require('express')
 const app = express()
-process.loadEnvFile()
+const connectDB = require('./src/mongoose')
 const port = process.env.PORT ?? 3000
 const morgan = require('morgan')
-const mongoose = require('mongoose')
-
-//Obtenemos la URI desde las variables de entorno
-const URI = process.env.MONGODB_URLSTRING
-const DATABASE_NAME = process.env.DATABASE_NAME
+const Movie = require('./src/movieModel')
 
 // Conectar a MongoDB usando Mongoose
-mongoose
-  .connect(URI + DATABASE_NAME)
-  .then(() => console.log('Conectado a MongoDB'))
-  .catch((err) => console.log('Error al conectarse : ', err))
-
-// Definir el esquema y el modelo de Mongoose
-const movieSchema = new mongoose.Schema({
-  title: String,
-  year: Number,
-  director: String,
-  duration: Number,
-  poster: String,
-  genre: [String],
-  rate: Number,
-})
-const Movie = mongoose.model('Movie', movieSchema)
+connectDB()
 
 //Middleware
 app.use(express.json())

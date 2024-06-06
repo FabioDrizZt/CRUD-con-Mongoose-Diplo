@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "node --watch serverMongoose.js",
+    "start": "node --watch serverMongoosePromesas.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
