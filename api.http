@@ -33,7 +33,7 @@ content-type: application/json
 
 {
     "sql": "SELECT * FROM users",
-    "duration": 222,
+    "duration": 123,
     "year" : 2022
 }
 
@@ -46,3 +46,15 @@ content-type: application/json
     "duration": 111,
     "year" : 2022
 }
+
+### Mostrar las pelis de varios genero
+GET http://localhost:3000/peliculas/generos?generos=action,drama
+
+### Mostrar las pelis mas recientes
+GET http://localhost:3000/peliculas/recientes
+
+### Mostrar las pelis mas recientes
+GET http://localhost:3000/peliculas/recientes?cantidad=5
+
+### Mostrar peliculas en un rango de años
+GET http://localhost:3000/peliculas/epoca?inicio=1990&fin=2000

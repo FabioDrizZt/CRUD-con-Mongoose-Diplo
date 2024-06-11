@@ -17,10 +17,57 @@ app.get('/', (req, res) => {
   res.json('Bienvenido a la API de peliculas !')
 })
 
-//Obtener todas las peliculas
+// Obtener todas las peliculas y opcionalmente de UN genero
 app.get('/peliculas', (req, res) => {
   const { genero } = req.query
   const query = !genero ? {} : { genre: { $regex: genero, $options: 'i' } }
+  Movie.find(query)
+    .then((peliculas) => {
+      res.json(peliculas)
+    })
+    .catch((error) => {
+      console.error('Error al obtener peliculas: ', error)
+      res.status(500).send('Error al obtener las peliculas')
+    })
+})
+
+// Mostrar peliculas de varios generos
+app.get('/peliculas/generos', (req, res) => {
+  let { generos } = req.query
+  // generos = generos.replace(',', '|')
+  // const query = { genre: { $regex: `(?i)^${generos}$` } }
+  const generosArray = generos.split(',').map((genre) => new RegExp(genre, 'i'))
+  const query = { genre: { $in: generosArray } }
+
+  Movie.find(query)
+    .then((peliculas) => {
+      res.json(peliculas)
+    })
+    .catch((error) => {
+      console.error('Error al obtener peliculas: ', error)
+      res.status(500).send('Error al obtener las peliculas')
+    })
+})
+
+// Mostrar peliculas mas recientes
+app.get('/peliculas/recientes', (req, res) => {
+  const { cantidad } = req.query
+  Movie.find()
+    .sort({ year: -1 })
+    .limit(!cantidad ? 10 : parseInt(cantidad))
+    .then((peliculas) => {
+      res.json(peliculas)
+    })
+    .catch((error) => {
+      console.error('Error al obtener peliculas: ', error)
+      res.status(500).send('Error al obtener las peliculas')
+    })
+})
+
+// Mostrar peliculas en un rango de años
+app.get('/peliculas/epoca', (req, res) => {
+  let { inicio, fin } = req.query
+  const query = { year: { $gte: inicio, $lte: fin } }
   Movie.find(query)
     .then((peliculas) => {
       res.json(peliculas)
